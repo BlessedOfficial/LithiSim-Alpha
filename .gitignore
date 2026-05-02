@@ -1,0 +1,26 @@
+# CMake
+build/
+out/
+cmake-build-*/
+CMakeUserPresets.json
+
+# Compiled / IDE
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+*.a
+*.pdb
+*.ilk
+.vs/
+.vscode/
+*.user
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.ipynb_checkpoints/
