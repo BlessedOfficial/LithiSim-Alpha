@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(lithisim
     src/main.cpp
+    src/truck.cpp
 )
 
 target_include_directories(lithisim PRIVATE
