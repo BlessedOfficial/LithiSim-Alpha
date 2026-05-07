@@ -1,0 +1,26 @@
+stateDiagram-v2
+    title Truck State Flow
+    [*] --> IDLE
+
+    IDLE --> HAULING : load()
+    HAULING --> DUMPING : move(), timer=0
+    DUMPING --> IDLE : unload(), timer=0
+
+    IDLE --> BROKEN : break_down()
+    HAULING --> BROKEN : break_down()
+    DUMPING --> BROKEN : break_down()
+
+    BROKEN --> IDLE : repair(), timer=0
+
+    note right of DUMPING
+      location = CRUSHER
+    end note
+
+    note left of IDLE
+      location = PIT after unload
+      location = PARKING after repair
+    end note
+
+    note right of BROKEN
+      location = MAINTENANCE
+    end note

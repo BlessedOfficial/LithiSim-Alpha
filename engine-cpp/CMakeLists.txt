@@ -7,6 +7,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(lithisim
     src/main.cpp
+    src/math_models.cpp
+    src/simulate.cpp
     src/truck.cpp
 )
 

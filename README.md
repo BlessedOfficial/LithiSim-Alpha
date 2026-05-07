@@ -47,9 +47,52 @@ cmake --build build --config Release
 
 Release binaries will appear under `build/` (name: `lithisim` / `lithisim.exe`).
 
-## Status
+## Current implementation snapshot
 
-Early stage: project skeleton, CMake build, and a minimal executable. Simulation logic, logging, and Python analysis will land incrementally.
+The project is still an early prototype, but the core simulation scaffolding is now in place.
+
+- `engine-cpp/include/truck.h` and `engine-cpp/src/truck.cpp`
+  - Truck state machine implemented with states: `IDLE`, `HAULING`, `DUMPING`, `BROKEN`
+  - Health-aware trucks (`health` in range 0-100)
+  - Dispatch gating (`dispatched` flag): only dispatched trucks advance cycle actions
+  - Speed property (`speed`) used as average travel time parameter
+  - State transition logging via `log_state()` and `log_transition(...)`
+
+- `engine-cpp/include/math_models.h` and `engine-cpp/src/math_models.cpp`
+  - Reusable stochastic model hub (`MathModels`)
+  - Implemented distributions:
+    - Poisson sampling (`sample_poisson`)
+    - Exponential sampling (`sample_exponential`)
+    - Uniform integer sampling (`sample_uniform_int`)
+
+- `engine-cpp/include/simulate.h` and `engine-cpp/src/simulate.cpp`
+  - System-level simulation controller (`simulate(...)`)
+  - Dispatch scheduler checks every random 20-25 timesteps
+  - Low-intensity stochastic dispatch trigger using Poisson (`lambda = 0.03`)
+  - Dispatch call count matches sampled required events
+  - Dispatch policy currently picks one eligible truck by highest health
+  - Selected truck travel time is sampled from exponential distribution using:
+    - `rate = 1.0 / speed`
+    - sampled seconds rounded up to at least 1 timestep
+
+- `engine-cpp/src/main.cpp`
+  - Wires together truck fleet + math models + simulate loop for demo runs
+
+- `assets/`
+  - `truck-state-flow.mmd` and exported `truck-state-flow.png` documenting transition flow
+
+## Current behavior notes
+
+- With `lambda = 0.03` and dispatch checks every 20-25 timesteps, dispatch events are intentionally rare in short runs.
+- The current model is focused on validating trigger wiring and stochastic control flow, not final operational realism yet.
+
+## Next planned increments
+
+- Add structured CSV telemetry output for downstream Python analysis
+- Add explicit queue/server logic (crusher/pit service modeling)
+- Add stochastic failure/repair calibration (MTBF/MTTR scenarios)
+- Introduce simulation config object for tunable parameters without code edits
+- Add seed-fixed sanity tests for repeatable transition verification
 
 ## License
 

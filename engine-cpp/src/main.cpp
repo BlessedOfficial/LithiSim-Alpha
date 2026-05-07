@@ -1,15 +1,18 @@
 #include <iostream>
 #include "mine_graph.h"
+#include "math_models.h"
+#include "simulate.h"
+#include "truck.h"
 
 int main(int argc, char* argv[]) {
     (void)argc;
     (void)argv;
 
-    MineGraph mine_graph;
-    mine_graph.add_edge(PIT, CRUSHER, 10);
-    mine_graph.add_edge(CRUSHER, PARKING, 10);
-    mine_graph.add_edge(PARKING, MAINTENANCE, 10);
-    mine_graph.add_edge(MAINTENANCE, PIT, 10);
-    mine_graph.print_graph();
-    return 0;
+   Truck trucks[] = {Truck(1), Truck(2), Truck(3)};
+   MathModels math_models(42);
+   simulate(trucks, 3, 120, math_models);
+   trucks[0].log_state();
+   trucks[1].log_state();
+   trucks[2].log_state();
+   return 0;
 }
