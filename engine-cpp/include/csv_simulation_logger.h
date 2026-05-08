@@ -11,6 +11,7 @@ class CsvSimulationLogger final : public SimulationLogger {
     ~CsvSimulationLogger() override;
 
     void log_state(int tick, const Truck& truck) override;
+    void log_transition(int tick, const Truck& truck, TruckState from_state, TruckState to_state, NodeType at_location) override;
     void log_wear(int tick, int truck_index, int wear, int health) override;
     void log_breakdown(int tick, int truck_index, const char* reason) override;
     void log_dispatch(int tick, int events, int calls, int successful) override;

@@ -3,6 +3,12 @@
 #include "math_models.h"
 #include "simulation_logger.h"
 #include "truck.h"
+#include <vector>
+
+enum class LoggingMode {
+    CONSOLE,
+    CSV
+};
 
 struct SimulationConfig {
     double dispatch_lambda = 0.55;
@@ -15,10 +21,14 @@ struct SimulationConfig {
     int tick_speed_min = 40;
     int tick_speed_max = 100;
     int tick_delay_ms = 500;
+    int purchase_interval_min = 0;
+    int purchase_interval_max = 0;
+    int max_truck_count = 0;  // 0 means unlimited
+    LoggingMode logging_mode = LoggingMode::CONSOLE;
 };
 
-bool dispatch(Truck trucks[], int truck_count, MathModels& math_models);
-void simulate(Truck trucks[], int truck_count, int total_timesteps, MathModels& math_models);
-void simulate(Truck trucks[], int truck_count, int total_timesteps, MathModels& math_models, const SimulationConfig& config);
-void simulate(Truck trucks[], int truck_count, int total_timesteps, MathModels& math_models, const SimulationConfig& config, SimulationLogger& logger);
-void repair_trucks(Truck trucks[], int truck_count);
+bool dispatch(std::vector<Truck>& trucks);
+void simulate(std::vector<Truck>& trucks, int total_timesteps, MathModels& math_models);
+void simulate(std::vector<Truck>& trucks, int total_timesteps, MathModels& math_models, const SimulationConfig& config);
+void simulate(std::vector<Truck>& trucks, int total_timesteps, MathModels& math_models, const SimulationConfig& config, SimulationLogger& logger);
+void repair_trucks(std::vector<Truck>& trucks);

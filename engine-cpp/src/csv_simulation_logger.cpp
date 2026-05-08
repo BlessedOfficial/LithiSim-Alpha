@@ -12,7 +12,7 @@ CsvSimulationLogger::CsvSimulationLogger(const std::string& output_directory) {
     state_stream_.open(state_path, std::ios::out | std::ios::trunc);
     event_stream_.open(event_path, std::ios::out | std::ios::trunc);
 
-    state_stream_ << "tick,truck_id,state,location,timer,dist_to_next_point,health,dispatched,speed\n";
+    state_stream_ << "tick,truck_id,state,location,timer,dist_to_next_point,health,breakdown_count,dispatched,speed\n";
     event_stream_ << "tick,event_type,truck_id,truck_index,wear,health,dispatch_events,dispatch_calls,dispatch_successful,reason\n";
 }
 
@@ -26,8 +26,23 @@ void CsvSimulationLogger::log_state(int tick, const Truck& truck) {
             << truck.get_timer() << ","
             << truck.get_dist_to_next_point() << ","
             << truck.get_health() << ","
+            << truck.get_breakdown_count() << ","
             << (truck.is_dispatched() ? 1 : 0) << ","
             << truck.get_speed() << "\n";
+}
+
+void CsvSimulationLogger::log_transition(int tick, const Truck& truck, TruckState from_state, TruckState to_state, NodeType at_location) {
+    event_stream_ << tick << ",transition,"
+                  << truck.get_id() << ","
+                  << ","
+                  << ","
+                  << ","
+                  << ","
+                  << ","
+                  << ","
+                  << static_cast<int>(from_state) << "->" << static_cast<int>(to_state)
+                  << "@"
+                  << node_type_to_string(at_location) << "\n";
 }
 
 void CsvSimulationLogger::log_wear(int tick, int truck_index, int wear, int health) {

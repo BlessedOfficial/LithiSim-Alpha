@@ -1,7 +1,6 @@
 #include "truck.h"
 
 #include <cctype>
-#include <iostream>
 #include <random>
 
 namespace {
@@ -15,9 +14,9 @@ constexpr int kRepairedHealthMax = 100;
 
 MineGraph build_default_route_graph() {
     MineGraph graph;
-    graph.add_edge(PARKING, PIT, 1000);
-    graph.add_edge(PIT, CRUSHER, 1200);
-    graph.add_edge(CRUSHER, PARKING, 800);
+    graph.add_edge(PARKING, PIT, 5000);
+    graph.add_edge(PIT, CRUSHER, 6000);
+    graph.add_edge(CRUSHER, PARKING, 4000);
     return graph;
 }
 
@@ -59,6 +58,7 @@ Truck::Truck(const std::string& id)
       timer(0),
       dist_to_next_point(0),
       health(100),
+      breakdown_count(0),
       dispatched(false),
       speed(22.0) {}
 
@@ -97,28 +97,23 @@ void Truck::move() {
     }
 
     if (location == PIT) {
-        const TruckState from = state;
         state = DUMPING;
         location = CRUSHER;
         timer = kDefaultDumpSeconds;
         dist_to_next_point = 0;
-        log_transition(from, state);
         return;
     }
 
     if (location == CRUSHER) {
-        const TruckState from = state;
         state = IDLE;
         location = PARKING;
         dispatched = false;
         dist_to_next_point = 0;
-        log_transition(from, state);
     }
 }
 
 
-void Truck::load(int travel_seconds) {
-    (void)travel_seconds;
+void Truck::load() {
     if (state != IDLE) {
         return;
     }
@@ -130,14 +125,12 @@ void Truck::load(int travel_seconds) {
         return;
     }
 
-    const TruckState from = state;
     state = HAULING;
     timer = 0;
     dist_to_next_point = edge_distance(PARKING, PIT);
     if (dist_to_next_point <= 0) {
         dist_to_next_point = speed;
     }
-    log_transition(from, state);
 }
 
 void Truck::unload() {
@@ -151,13 +144,11 @@ void Truck::unload() {
         return;
     }
 
-    const TruckState from = state;
     state = HAULING;
     dist_to_next_point = edge_distance(CRUSHER, PARKING);
     if (dist_to_next_point <= 0) {
         dist_to_next_point = speed;
     }
-    log_transition(from, state);
 }
 
 void Truck::break_down() {
@@ -165,12 +156,11 @@ void Truck::break_down() {
         return;
     }
 
-    const TruckState from = state;
+    ++breakdown_count;
     state = BROKEN;
     location = MAINTENANCE;
     timer = sample_uniform_int(kRepairSecondsMin, kRepairSecondsMax);
     dist_to_next_point = 0;
-    log_transition(from, state);
 }
 
 void Truck::repair() {
@@ -184,28 +174,11 @@ void Truck::repair() {
         return;
     }
 
-    const TruckState from = state;
     state = IDLE;
     location = PARKING;
     dispatched = false;
     dist_to_next_point = 0;
     set_health(sample_uniform_int(kRepairedHealthMin, kRepairedHealthMax));
-    log_transition(from, state);
-}
-
-void Truck::log_state() const {
-    std::cout << "truck " << id << " state=" << static_cast<int>(state)
-              << " location = " << node_type_to_string(location)
-              << " timer = " << timer
-              << " dist_to_next_point = " << dist_to_next_point
-              << " health = " << health
-              << " dispatched = " << (dispatched ? 1 : 0)
-              << " speed = " << speed << '\n';
-}
-
-void Truck::log_transition(TruckState from, TruckState to) {
-    std::cout << "truck " << id << " " << static_cast<int>(from) << " -> "
-              << static_cast<int>(to) << " at " << node_type_to_string(location) << '\n';
 }
 
 int Truck::get_health() const {
@@ -266,4 +239,8 @@ int Truck::get_timer() const {
 
 double Truck::get_dist_to_next_point() const {
     return dist_to_next_point;
+}
+
+int Truck::get_breakdown_count() const {
+    return breakdown_count;
 }

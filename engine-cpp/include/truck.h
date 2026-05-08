@@ -19,6 +19,7 @@ class Truck {
         int timer;
         double dist_to_next_point;
         int health;
+        int breakdown_count;
         bool dispatched;
         double speed;
         static std::string normalize_id(const std::string& raw_id);
@@ -28,12 +29,10 @@ class Truck {
         
        
         void move();
-        void load(int travel_seconds);
+        void load();
         void unload();
         void break_down();
         void repair();
-        void log_state() const;
-        void log_transition(TruckState from, TruckState to);
         int get_health() const;
         void set_health(int value);
         bool is_dispatched() const;
@@ -45,6 +44,7 @@ class Truck {
         NodeType get_location() const;
         int get_timer() const;
         double get_dist_to_next_point() const;
+        int get_breakdown_count() const;
 };
 
 // From	--To--	--Condition--
