@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(lithisim
+    src/csv_simulation_logger.cpp
     src/main.cpp
     src/math_models.cpp
     src/simulate.cpp

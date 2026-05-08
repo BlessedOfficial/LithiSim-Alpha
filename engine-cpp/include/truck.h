@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mine_graph.h"
+#include <string>
 
 enum TruckState {
     IDLE,
@@ -12,24 +13,18 @@ enum TruckState {
 class Truck {
    
    private:
-        int id;
+        std::string id;
         TruckState state;
         NodeType location;
         int timer;
+        double dist_to_next_point;
         int health;
         bool dispatched;
         double speed;
+        static std::string normalize_id(const std::string& raw_id);
 
     public:
-        Truck(int id){
-            this->id = id;
-            state = IDLE;
-            location = PARKING;
-            timer = 0;
-            health = 100;
-            dispatched = false;
-            speed = 22.0;
-        };
+        explicit Truck(const std::string& id);
         
        
         void move();
@@ -37,7 +32,7 @@ class Truck {
         void unload();
         void break_down();
         void repair();
-        void log_state();
+        void log_state() const;
         void log_transition(TruckState from, TruckState to);
         int get_health() const;
         void set_health(int value);
@@ -46,6 +41,10 @@ class Truck {
         double get_speed() const;
         void set_speed(double value);
         TruckState get_state() const;
+        const std::string& get_id() const;
+        NodeType get_location() const;
+        int get_timer() const;
+        double get_dist_to_next_point() const;
 };
 
 // From	--To--	--Condition--
