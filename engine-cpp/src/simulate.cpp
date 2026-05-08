@@ -8,6 +8,9 @@
 #include <string>
 #include <thread>
 #include <vector>
+#ifdef _WIN32
+#include <conio.h>
+#endif
 
 namespace {
 
@@ -89,6 +92,30 @@ void initialize_wear_schedule(std::vector<int>& next_wear_tick, MathModels& math
 bool purchasing_enabled(const SimulationConfig& config) {
     return config.purchase_interval_min > 0 &&
            config.purchase_interval_max >= config.purchase_interval_min;
+}
+
+void process_pause_resume_controls(
+    bool& paused,
+    const SimulationConfig& config
+) {
+    if (!config.enable_pause_resume_controls) {
+        return;
+    }
+
+#ifdef _WIN32
+    while (_kbhit()) {
+        const int key = _getch();
+        if ((key == 'p' || key == 'P') && !paused) {
+            paused = true;
+            std::cout << "[control] paused (press 'r' to resume)\n";
+            continue;
+        }
+        if ((key == 'r' || key == 'R') && paused) {
+            paused = false;
+            std::cout << "[control] resumed\n";
+        }
+    }
+#endif
 }
 
 bool at_max_truck_capacity(std::size_t fleet_size, const SimulationConfig& config) {
@@ -247,12 +274,19 @@ void simulate(std::vector<Truck>& trucks, int total_timesteps, MathModels& math_
 
     int next_dispatch_tick = math_models.sample_uniform_int(config.dispatch_interval_min, config.dispatch_interval_max);
     int next_purchase_tick = -1;
+    bool paused = false;
     initialize_purchase_schedule(next_purchase_tick, math_models, config);
     std::vector<int> next_wear_tick(static_cast<int>(trucks.size()));
     initialize_wear_schedule(next_wear_tick, math_models, config);
     int simulation_time = 0;
 
     for (int tick = 1; total_timesteps <= 0 || tick <= total_timesteps; ++tick) {
+        process_pause_resume_controls(paused, config);
+        while (paused) {
+            process_pause_resume_controls(paused, config);
+            std::this_thread::sleep_for(std::chrono::milliseconds(config.pause_poll_delay_ms));
+        }
+
         ++simulation_time;
         if (config.logging_mode == LoggingMode::CONSOLE) {
             std::cout << "[time " << simulation_time << " | tick " << tick << "]\n";
